@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /busca
+Allow: /
+
+Sitemap: http://www.toape.com.br/sitemap.txt

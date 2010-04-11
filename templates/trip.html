@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Linha de ônibus {{trip.route_id}} - {{trip.route_long_name}} - Tô a Pé{% endblock %}
+{% block description %}Quadro de horários de circulação e mapa do itinerário da linha de ônibus {{trip.route_id}} ({{trip.route_long_name}}), com sentido {{ trip.trip_headsign }}{% endblock %}
+
+{% block body_attributes %} onunload="GUnload()" {% endblock %}
+
+{% block content %}
+	<div style="width=100%"><!--IE BUG FIX-->
+		<div class="infobox">
+			<h1>
+				<strong>{{trip.route_id}}</strong><br />
+				{{trip.route_long_name}}
+			</h1>
+			
+			<p><span class="label">Sentido: </span>{{ trip.trip_headsign }}</p>
+			<p><span class="label">Fonte: </span><a href="http://www.sptrans.com.br">SPTrans</a></p>
+			<p><a href="{{trip.url}}.kml">Veja trajeto no Google Earth</a></p>
+			
+			<script type="text/javascript"><!--
+			google_ad_client = "pub-3721608169956605";
+			/* toape, 200x200, created 9/19/09 */
+			google_ad_slot = "6649054094";
+			google_ad_width = 200;
+			google_ad_height = 200;
+			//-->
+			</script>
+			<script type="text/javascript"
+			src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+			</script>
+
+		</div>		
+		
+		<div id="map_canvas"></div>
+	</div>
+
+{% endblock %}
+
+{% block extra_content %}
+	{% for frequency in frequencies %}
+		{% if forloop.first %}
+		<div style="margin-left: auto; margin-right: auto;  margin-top:-60px; padding-bottom: 50px;">
+			<h2>Quadro de horários</h2>	
+			<table style="margin-left: auto; margin-right: auto;">
+				<tr>
+					<th>Faixa horário</th>
+					<th>Intervalo partida</th>
+				</tr>	
+		{% endif %}
+					<tr>
+						<td>{{ frequency.interval }}</td>
+						<td>{{ frequency.human_headway }}</td>
+					</tr>
+		{% if forloop.last %}
+			</table>
+		</div>
+		{% endif %}
+	{% endfor %}		
+{% endblock %}
+	
+{% block head_scripts %}
+	<script type="text/javascript" src="http://maps.google.com/maps?file=api&amp;v=2.x&amp;key=ABQIAAAAHN2YjCu-vCKcjKFjLPP7cBQ2tiyZZop8x0i4ZK_bfH5uEMP7aBQLXLNFdpr_R311_aQSevYRsi6aqQ"></script>
+{% endblock %}
+
+{% block end_scripts %}
+	<script type="text/javascript">
+		var trip_id = '{{trip.trip_id}}';
+	</script>
+	<script type="text/javascript" src="/js/maps.js"></script>
+{% endblock %}

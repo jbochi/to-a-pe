@@ -1,0 +1,67 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt-br" lang="pt-br">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">	
+		<title>{% block title %}Itinerário e horários de circulação das linhas de ônibus e metrô de São Paulo - Tô a Pé{% endblock %}</title>
+		<meta name="description" content="{% block description %}Guia de itinerários, mapas, rotas e horários de circulação das linhas de ônibus da cidade de São Paulo.{% endblock %}">
+		<meta name="verify-v1" content="obGJPlNEo8k7MmTIRiQ3CiNwbFq68URyXXeK0vCOVDs=" />
+		<link rel="stylesheet" type="text/css" href="/style/layout.css" />
+		<link rel="stylesheet" type="text/css"  href="/style/jquery.autocomplete.css" />
+		<script type="text/javascript" src="/js/jquery-1.3.2.min.js"></script>		
+		{% block head_scripts %}{% endblock %}
+	</head>
+	<body {% block body_attributes %}{% endblock %}>
+		<div id="wrap">
+			<div id="main" class="clearfix">
+				<div id="header">
+					<a href="/"><div id="logo"></div></a>
+					<div id="search">
+						<form name="searchForm" action="/busca" method="get">
+							<p class="slogan">O seu guia para o transporte p&uacute;blico de S&atilde;o Paulo</p>
+							<div id="searchbox">
+								<input id="trips" name="q"></input>
+								<p class="tip">Procure por linhas de &ocirc;nibus ou de metr&ocirc;</p>
+							</div>
+							<a href="javascript:document.searchForm.submit();" class="button" id="buttonPesquisar"><span>Pesquisar</span></a>
+							<input type="submit" style="width: 0px;height: 0px;border: none">
+						</form>
+					</div>
+				</div>
+
+				<div id="content" class="roundedcornr_box_966187">
+				   <div class="roundedcornr_top_966187"><div></div></div>
+					  <div class="roundedcornr_content_966187">							
+							{% block content %}{% endblock %}
+					  </div>
+				   <div class="roundedcornr_bottom_966187"><div></div></div>
+				</div>
+			</div>
+		</div>
+		
+		{% block extra_content %}{% endblock %}
+		
+		<div id="footer">
+			<p>©2010 | <a href="http://www.toape.com.br">toape.com.br</a> | <a href="http://blog.toape.com.br">blog</a></p>
+		</div>
+		
+		{% block end_scripts %}{% endblock %}
+		
+		<script type="text/javascript" src="/js/jquery.autocomplete.js"></script>		
+		<script type="text/javascript" src="/js/autocomplete.js"></script>
+		
+		<script type="text/javascript"></script>
+		<!--Google Analytics-->
+		<script type="text/javascript">
+			var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+			document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+		</script>
+		<script type="text/javascript">
+			try{
+				var pageTracker = _gat._getTracker("UA-7987284-2");
+				pageTracker._trackPageview();
+			} catch(err) {
+			}
+		</script>		
+	</body>
+</html>

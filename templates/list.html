@@ -1,0 +1,19 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+		<h1>Lista de Itinerários de Ônibus</h1>
+		<ul>
+			{% for trip in trips %}
+				<li>
+					<a href="{{trip.url}}">
+						{{trip.route_id}} - {{trip.route_long_name}} - Sentido: {{ trip.trip_headsign }}
+					</a>
+				</li>
+			{% endfor %}
+		</ul>
+		<div class="buttons">
+			{% if next %}
+				<div class="next"><a href="/lista?bookmark={{next}}">Próximo</a></div>
+			{% endif %}
+		</div>
+{% endblock %}
