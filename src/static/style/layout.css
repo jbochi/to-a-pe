@@ -64,6 +64,12 @@ p.slogan {
 .specialButton a:hover, .specialButton a:active {
 	color: #FF7200 !important;
 }
+a {
+	color: #664a00;
+}
+a:visited {
+	color: #664a00;
+}
 a.button, a.buttonDis {
 	display: block; 
 	background-color: transparent;
