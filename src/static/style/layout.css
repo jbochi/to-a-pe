@@ -179,6 +179,9 @@ p.tip {
 h1 {
  padding:5px;
  background-color:#ffe399;
+ -moz-border-radius: 7px;
+ -webkit-border-radius: 7px;
+ border: 0px solid #000; 
  color:#664a00;
  font-family:Arial;
  font-size:1em;
