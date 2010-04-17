@@ -11,7 +11,7 @@ class Agency(db.Model):
     name = db.StringProperty(required=True)
     url = db.LinkProperty(required=True)
     timezone = db.StringProperty(required=True)
-    lang = db.StringProperty(required=True)
+    lang = db.StringProperty()
     phone = db.PhoneNumberProperty()
 
 
