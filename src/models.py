@@ -1,54 +1,118 @@
-from datetime import timedelta
-import re
 from google.appengine.ext import db
+
+from geo.geomodel import GeoModel
 from glinedec import decode_line
+from util import slugify, format_timedelta_seconds
 
-class Trips(db.Model):
-    trip_id = db.StringProperty()
+#http://code.google.com/transit/spec/transit_feed_specification.html#agency_txt___Field_Definitions
 
-    route_id = db.StringProperty()
-    agency_id = db.StringProperty()
-    route_short_name = db.StringProperty()
-    route_long_name = db.StringProperty()
-    route_type = db.IntegerProperty()
+class Agency(db.Model):
+    id = db.StringProperty() #unique, but not required
+    name = db.StringProperty(required=True)
+    url = db.LinkProperty(required=True)
+    timezone = db.StringProperty(required=True)
+    lang = db.StringProperty(required=True)
+    phone = db.PhoneNumberProperty()
 
-    service_id = db.StringProperty()
-    trip_headsign = db.StringProperty()
-    direction_id = db.StringProperty()
+
+class Service(db.Model):
+    "From calendar.txt"
+    id = db.StringProperty(required=True) #unique
+    monday = db.BooleanProperty(required=True)
+    tuesday = db.BooleanProperty(required=True)
+    wednesday = db.BooleanProperty(required=True)
+    thursday = db.BooleanProperty(required=True)
+    friday = db.BooleanProperty(required=True)
+    saturday = db.BooleanProperty(required=True)
+    sunday = db.BooleanProperty(required=True)
+    start_date = db.DateProperty(required=True)
+    end_date = db.DateProperty(required=True)
+
+
+class Stop(GeoModel):
+    LOCATION_TYPE_CHOICES = (0, # 0  or blank - Stop. A location where passengers board or disembark from a transit vehicle.
+                             1,) # 1 - Station. A physical structure or area that contains one or more stop.
+
+    id = db.StringProperty(required=True) #unique
+    code = db.StringProperty() #unique, but not required
+    name = db.StringProperty(required=True)
+    desc = db.StringProperty()
+    zone_id = db.StringProperty()
+    url = db.LinkProperty()
+    location_type = db.IntegerProperty(choices=LOCATION_TYPE_CHOICES)
+    parent_station = db.StringProperty()
+
+
+class Route(db.Model):
+    ROUTE_TYPE_CHOICES = (0, #Tram, Streetcar, Light rail. Any light rail or street level system within a metropolitan area.
+                          1, #Subway, Metro. Any underground rail system within a metropolitan area.
+                          2, #Rail. Used for intercity or long-distance travel.
+                          3, #Bus. Used for short- and long-distance bus routes.
+                          4, #Ferry. Used for short- and long-distance boat service.
+                          5, #Cable car. Used for street-level cable cars where the cable runs beneath the car.
+                          6, #Gondola, Suspended cable car. Typically used for aerial cable cars where the car is suspended from the cable.
+                          7) #Funicular. Any rail system designed for steep inclines.
+
+
+    id = db.StringProperty(required=True) #unique
+    agency = db.ReferenceProperty(Agency)
+    short_name = db.StringProperty(required=True)
+    long_name = db.StringProperty(required=True)
+    desc = db.StringProperty()
+    type = db.IntegerProperty(required=True)
+    url = db.LinkProperty()
+    color = db.StringProperty()
+    text_color = db.StringProperty()
+
+
+class Trip(db.Model):
+    route = db.ReferenceProperty(Route, required=True)
+    service = db.ReferenceProperty(Service, required=True)
+    id = db.StringProperty() #unique
+    headsign = db.StringProperty()
+    short_name = db.StringProperty()
+    direction_id = db.BooleanProperty()
+    block_id = db.StringProperty()
     shape_id = db.StringProperty()
+    shape_encoded_polyline = db.TextProperty()
+    shape_encoded_levels = db.TextProperty()
 
-    encoded_polyline = db.TextProperty()
-    encoded_levels = db.TextProperty()
-
-    starts = db.StringListProperty()
-
-    def url(self):
+    @property
+    def get_absolute_url(self):
         return '/%s/%s' % (self.trip_id, slugify(self.route_long_name))
 
-    def route(self):
+    @property
+    def get_shape(self):
         return decode_line(self.encoded_polyline)
 
 
+class StopTime():
+    PICKUP_DROPOFF_CHOICES = (0, # Regularly scheduled pickup/dropoff
+                              1, # No pickup/dropoff available
+                              2, # Must phone agency to arrange pickup/dropoff
+                              3) # Must coordinate with driver to arrange pickup/dropoff
+
+    trip = db.ReferenceProperty(Trip, required=True)
+    arrival_time = db.IntegerProperty() #seconds
+    departure_time = db.IntegerProperty() #seconds
+    stop = db.ReferenceProperty(Stop, required=True)
+    stop_sequence = db.IntegerProperty(required=True)
+    pickup_type = db.IntegerProperty(required=True, default=0, choices=PICKUP_DROPOFF_CHOICES)
+    drop_off_type = db.IntegerProperty(required=True, default=0, choices=PICKUP_DROPOFF_CHOICES)
+    shape_dist_traveled = db.FloatProperty()
+
+
 class Frequency(db.Model):
-    trip_id = db.ReferenceProperty(Trips)
+    trip_id = db.ReferenceProperty(Trip)
     start_time = db.IntegerProperty() #seconds since midnight
     end_time = db.IntegerProperty() #seconds since midnight
     headway_secs = db.IntegerProperty()
 
+    @property
     def human_headway(self):
         return '%i min' % int(self.headway_secs / 60)
 
+    @property
     def interval(self):
         return "%s - %s" % (format_timedelta_seconds(self.start_time),
                             format_timedelta_seconds(self.end_time))
-
-
-def slugify(text):
-    text = text.replace("'", "")
-    text = re.subn(r'(\s|\.|\(|\)|\/|\\)', ' ', text)[0]
-    text = text.strip().lower()
-    text = re.subn(r'(-|\s)+', '-', text)[0]
-    return text
-
-def format_timedelta_seconds(timedelta_seconds):
-    return str(timedelta(seconds=timedelta_seconds))[:-3]
