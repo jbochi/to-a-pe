@@ -77,11 +77,9 @@ class Trip(db.Model):
     shape_encoded_polyline = db.TextProperty()
     shape_encoded_levels = db.TextProperty()
 
-    @property
     def get_absolute_url(self):
         return '/%s/%s' % (self.trip_id, slugify(self.route_long_name))
 
-    @property
     def get_shape(self):
         return decode_line(self.encoded_polyline)
 
@@ -102,17 +100,43 @@ class StopTime():
     shape_dist_traveled = db.FloatProperty()
 
 
+class Trips(db.Model):
+    "Old model for trips. To be deleted"
+    trip_id = db.StringProperty()
+
+    route_id = db.StringProperty()
+    agency_id = db.StringProperty()
+    route_short_name = db.StringProperty()
+    route_long_name = db.StringProperty()
+    route_type = db.IntegerProperty()
+
+    service_id = db.StringProperty()
+    trip_headsign = db.StringProperty()
+    direction_id = db.StringProperty()
+    shape_id = db.StringProperty()
+
+    encoded_polyline = db.TextProperty()
+    encoded_levels = db.TextProperty()
+
+    starts = db.StringListProperty()
+
+    def url(self):
+        return '/%s/%s' % (self.trip_id, slugify(self.route_long_name))
+
+    def route(self):
+        return decode_line(self.encoded_polyline)
+
+
 class Frequency(db.Model):
-    trip_id = db.ReferenceProperty(Trip)
+    trip = db.ReferenceProperty(Trip) #
+    trip_id = db.ReferenceProperty(Trips) #old property linking to old model
     start_time = db.IntegerProperty() #seconds since midnight
     end_time = db.IntegerProperty() #seconds since midnight
     headway_secs = db.IntegerProperty()
 
-    @property
     def human_headway(self):
         return '%i min' % int(self.headway_secs / 60)
 
-    @property
     def interval(self):
         return "%s - %s" % (format_timedelta_seconds(self.start_time),
                             format_timedelta_seconds(self.end_time))
