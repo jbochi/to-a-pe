@@ -7,7 +7,7 @@
     <atom:author>
       <atom:name>Tô a Pé</atom:name>    
     </atom:author>    
-    <atom:link href="http://www.toape.com.br{{ trip.url }}" />  		
+    <atom:link href="http://www.toape.com.br{{ trip.get_absolute_url }}" />  		
     <Style id="yellowLineGreenPoly">
       <LineStyle>
         <color>7f00ffff</color>
