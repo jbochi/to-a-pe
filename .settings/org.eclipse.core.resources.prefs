@@ -1,3 +1,6 @@
-#Sun Apr 11 18:57:25 BRT 2010
+#Sun Apr 18 14:47:16 BRT 2010
 eclipse.preferences.version=1
+encoding//src/templates/list.html=UTF-8
+encoding//src/templates/search_results.html=UTF-8
+encoding//src/templates/trip.html=UTF-8
 encoding/<project>=UTF-8
