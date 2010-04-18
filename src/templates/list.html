@@ -1,11 +1,11 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 		<h1>Lista de Itinerários de Ônibus</h1>
 		<ul>
 			{% for trip in trips %}
 				<li>
-					<a href="{{trip.url}}">
+					<a href="{{trip.get_absolute_url}}">
 						{{trip.route_id}} - {{trip.route_long_name}} - Sentido: {{ trip.trip_headsign }}
 					</a>
 				</li>

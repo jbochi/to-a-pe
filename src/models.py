@@ -120,7 +120,7 @@ class Trips(db.Model):
 
     starts = db.StringListProperty()
 
-    def url(self):
+    def get_absolute_url(self):
         return '/%s/%s' % (self.trip_id, slugify(self.route_long_name))
 
     def route(self):

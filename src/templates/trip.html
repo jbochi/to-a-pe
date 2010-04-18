@@ -15,7 +15,7 @@
 			
 			<p><span class="label">Sentido: </span>{{ trip.trip_headsign }}</p>
 			<p><span class="label">Fonte: </span><a href="http://www.sptrans.com.br">SPTrans</a></p>
-			<p><a href="{{trip.url}}.kml">Veja trajeto no Google Earth</a></p>
+			<p><a href="{{trip.get_absolute_url}}.kml">Veja trajeto no Google Earth</a></p>
 			
 			<script type="text/javascript"><!--
 			google_ad_client = "pub-3721608169956605";

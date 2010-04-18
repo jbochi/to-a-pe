@@ -7,7 +7,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext import db
 
 from models import Trips
-from models import slugify
+from util import slugify
 
 from django.utils import simplejson
 from search import get_unique_words
@@ -88,24 +88,22 @@ class Autocomplete(webapp.RequestHandler):
         text = '\n'.join([format(trip) for trip in trips])
         self.response.out.write(text)
 
-class Trip(webapp.RequestHandler):
+class TripHandler(webapp.RequestHandler):
     def get(self, trip_id=None, description=None):
-        trip_id = unquote(trip_id)
+        trip = Trips.all().filter("trip_id =", unquote(trip_id)).get()
 
-        if description != None:
+        if not trip:
+            self.error(404)
+            self.response.out.write('404 - Pagina nao encontrada')
+        else:
             #redirect old links that were not slugfied (SEO)
-            slug = slugify(unquote(description))
-            if slug != description:
-                self.redirect("/%s/%s" % (trip_id, slug), permanent=True)
-
-        trip = Trips.all().filter("trip_id =", trip_id).get()
-        frequencies = trip.frequency_set
-        template_values = {
-            'trip': trip,
-            'frequencies': frequencies,
-        }
-        path = os.path.join(os.path.dirname(__file__), 'templates/trip.html')
-        self.response.out.write(template.render(path, template_values))
+            if description != slugify(trip.route_long_name):
+                self.redirect(trip.get_absolute_url(), permanent=True)
+            else:
+                template_values = {'trip': trip,
+                                   'frequencies': trip.frequency_set, }
+                path = os.path.join(os.path.dirname(__file__), 'templates/trip.html')
+                self.response.out.write(template.render(path, template_values))
 
 class GetPoly(webapp.RequestHandler):
     def get(self, trip_id):
@@ -137,7 +135,7 @@ def main():
                                         ('/ajax/get_poly/(.*)', GetPoly),
                                         ('/ajax/autocomplete', Autocomplete),
                                         ('/(.*)/(.*).kml', KML),
-                                        ('/(.*)/(.*)', Trip), ],
+                                        ('/(.*)/(.*)', TripHandler), ],
                                        debug=True)
     wsgiref.handlers.CGIHandler().run(application)
 
