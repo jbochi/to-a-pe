@@ -73,13 +73,13 @@ class Search(webapp.RequestHandler):
 class Autocomplete(webapp.RequestHandler):
     def get(self, bookmark=None):
         search_string = self.request.get('q')
-        limit = self.request.get('limit')
+        limit = int(self.request.get('limit'))
 
         words = get_unique_words(search_string)
-        where = 'AND'.join([" starts = '%s' " % word for word in words])
-        query = db.GqlQuery("SELECT * FROM Trips WHERE %s" % where)
-
-        trips = query.fetch(int(limit))
+        query = Trips.all()
+        for word in words:
+            query = query.filter('starts =', word)
+        trips = query.fetch(limit=limit)
 
         def format(trip):
             return "%s - %s - Sentido: %s|/%s/%s" % (trip.route_id, trip.route_long_name, trip.trip_headsign,
