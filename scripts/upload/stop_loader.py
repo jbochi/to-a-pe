@@ -22,6 +22,7 @@ class StopLoader(bulkloader.Loader):
         # so that we can set one property (location:GeoPt) from two
         # CSV columns.
         values[3] = values[3] + ',' + values[4]
+        return super(StopLoader, self).create_entity(values, key_name)
 
     def generate_key(self, i, values):
         return values[0]
