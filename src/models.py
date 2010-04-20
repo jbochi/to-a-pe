@@ -74,8 +74,10 @@ class Trip(db.Model):
     direction_id = db.BooleanProperty()
     block_id = db.StringProperty()
     shape_id = db.StringProperty()
+
     shape_encoded_polyline = db.TextProperty()
     shape_encoded_levels = db.TextProperty()
+    stops = db.StringListProperty() #list of Stop key names
 
     def get_absolute_url(self):
         return '/%s/%s' % (self.trip_id, slugify(self.route_long_name))
