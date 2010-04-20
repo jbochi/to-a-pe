@@ -39,7 +39,7 @@ def str2date(string):
     return date(year, month, day)
 
 def unicode_str(string):
-    return string.decode('windows-1252')
+    return string.decode('utf-8')
 
 def lat_lon(s):
     lat, lon = [float(v) for v in s.split(',')]
