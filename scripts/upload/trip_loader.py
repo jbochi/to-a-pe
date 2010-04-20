@@ -7,6 +7,7 @@ from google.appengine.tools import bulkloader
 import models
 from upload_utils import unicode_str, get_service, get_route
 from get_polylines import get_polys
+from get_stops import get_stops
 
 class TripLoader(bulkloader.Loader):
     def __init__(self):
@@ -23,10 +24,13 @@ class TripLoader(bulkloader.Loader):
         poly, levels = polys[entity.shape_id]
         entity.shape_encoded_polyline = poly
         entity.shape_encoded_levels = levels
+        entity.stops = stops[entity.id]
+
         return entity
 
     def generate_key(self, i, values):
         return 'trip_%s' % values[2] #trip_id
 
 loaders = [TripLoader]
+stops = get_stops('C:/USERS/personal/offline_toape/transit/google_transit_20100417/stop_times.txt')
 polys = get_polys('C:/USERS/personal/offline_toape/transit/google_transit_20100417/shapes.txt')
