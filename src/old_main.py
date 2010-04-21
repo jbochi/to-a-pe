@@ -6,7 +6,7 @@ from google.appengine.ext.webapp import template
 from google.appengine.ext import webapp
 from google.appengine.ext import db
 
-from models import Route, Stop, Trip, Trips
+from models import Trips
 from util import slugify
 
 from django.utils import simplejson
@@ -16,12 +16,25 @@ PAGESIZE = 25
 
 class List(webapp.RequestHandler):
     def get(self):
-        routes = Route.all().order("id").fetch(PAGESIZE + 1)
+        next = None
+        bookmark = self.request.get('bookmark')
+
+        if bookmark:
+            trips = Trips.all().order("route_id").filter('route_id >=', bookmark).fetch(PAGESIZE + 1)
+        else:
+            trips = Trips.all().order("route_id").fetch(PAGESIZE + 1)
+
+        if len(trips) == PAGESIZE + 1:
+            next = trips[-1].route_id
+            trips = trips[:PAGESIZE]
+
         template_values = {
-            'routes': routes,
+            'trips': trips,
+            'next': next,
+            'ida': "1", #1 = ida (going); 2 = volta (returning)
         }
 
-        path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
+        path = os.path.join(os.path.dirname(__file__), 'templates_old/list.html')
         self.response.out.write(template.render(path, template_values))
 
 class Search(webapp.RequestHandler):
@@ -54,7 +67,7 @@ class Search(webapp.RequestHandler):
             'previous': previous
         }
 
-        path = os.path.join(os.path.dirname(__file__), 'templates/search_results.html')
+        path = os.path.join(os.path.dirname(__file__), 'templates_old/search_results.html')
         self.response.out.write(template.render(path, template_values))
 
 class Autocomplete(webapp.RequestHandler):
@@ -75,72 +88,37 @@ class Autocomplete(webapp.RequestHandler):
         text = '\n'.join([format(trip) for trip in trips])
         self.response.out.write(text)
 
-class RouteHandler(webapp.RequestHandler):
-    def get(self, route_id=None, description=None):
-        route = Route.get_by_key_name(route_id)
-        if not route: #redirect old links that were not slugfied (SEO)
-            trip_id = route_id
-            trip = Trips.all().filter("trip_id =", unquote(trip_id)).get()
+class TripHandler(webapp.RequestHandler):
+    def get(self, trip_id=None, description=None):
+        trip = Trips.all().filter("trip_id =", unquote(trip_id)).get()
 
-            if not trip:
-                self.error(404)
-                self.response.out.write('404 - Pagina nao encontrada')
-            else:
-                #redirect old links that were not slugfied (SEO)
-                if description != slugify(trip.route_long_name):
-                    self.redirect(trip.get_absolute_url(), permanent=True)
-                else:
-                    template_values = {'trip': trip,
-                                       'frequencies': trip.frequency_set, }
-                    path = os.path.join(os.path.dirname(__file__), 'old_templates/trip.html')
-                    self.response.out.write(template.render(path, template_values))
+        if not trip:
+            self.error(404)
+            self.response.out.write('404 - Pagina nao encontrada')
         else:
-            template_values = {'route': route,
-                               'trips': route.trip_set.fetch(10), }
-            path = os.path.join(os.path.dirname(__file__), 'templates/route.html')
-            self.response.out.write(template.render(path, template_values))
+            #redirect old links that were not slugfied (SEO)
+            if description != slugify(trip.route_long_name):
+                self.redirect(trip.get_absolute_url(), permanent=True)
+            else:
+                template_values = {'trip': trip,
+                                   'frequencies': trip.frequency_set, }
+                path = os.path.join(os.path.dirname(__file__), 'templates_old/trip.html')
+                self.response.out.write(template.render(path, template_values))
 
 class GetPoly(webapp.RequestHandler):
     def get(self, trip_id):
         "Returns encoded polyline path from trip_id"
 
         trip_id = unquote(trip_id)
-        trip = Trip.get_by_key_name('trip_' + trip_id)
-        stops = Stop.get_by_key_name(trip.stops)
-        stops = filter(lambda s: s is not None, stops)
-        stops = filter(lambda s: s.location is not None, stops)
-        def serializable_stop(stop):
-            return (stop.id,
-                    stop.location.lat,
-                    stop.location.lon,
-                    stop.name)
-
-        stop_locations = [serializable_stop(stop) for stop in stops]
-
+        trip = Trips.all().filter("trip_id =", trip_id).get()
         if trip:
-            data = {'points': trip.shape_encoded_polyline,
-                    'levels': trip.shape_encoded_levels,
-                    'stops': stop_locations}
+            data = {'points': trip.encoded_polyline, 'levels': trip.encoded_levels}
             self.response.out.write(simplejson.dumps(data))
-
-class GetStopDetails(webapp.RequestHandler):
-    def get(self, stop_id):
-        stop_id = unicode(unquote(stop_id))
-        stop = Stop.get_by_key_name(stop_id)
-        trips = Trip.all().filter('stops =', stop_id).fetch(10)
-        if stop:
-            template_values = {'stop': stop, 'trips': trips}
-            path = os.path.join(os.path.dirname(__file__), 'templates/stop_details.html')
-            self.response.out.write(template.render(path, template_values))
-        else:
-            self.error(404)
-            return self.response.out.write('Erro')
-
 
 class KML(webapp.RequestHandler):
     def get(self, trip_id, file):
         trip_id = unquote(trip_id)
-        path = os.path.join(os.path.dirname(__file__), 'templates/trip.kml')
+        path = os.path.join(os.path.dirname(__file__), 'templates_old/trip.kml')
         trip = Trips.all().filter("trip_id =", trip_id).get()
         template_values = {
             'trip': trip,
@@ -154,11 +132,10 @@ def main():
     application = webapp.WSGIApplication([('/', List),
                                         ('/lista', List),
                                         ('/busca', Search),
-                                        ('/ajax/stop_details/(.*)/', GetStopDetails),
                                         ('/ajax/get_poly/(.*)', GetPoly),
                                         ('/ajax/autocomplete', Autocomplete),
                                         ('/(.*)/(.*).kml', KML),
-                                        ('/(.*)/(.*)', RouteHandler), ],
+                                        ('/(.*)/(.*)', TripHandler), ],
                                        debug=True)
     wsgiref.handlers.CGIHandler().run(application)
 

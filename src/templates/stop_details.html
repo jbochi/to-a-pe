@@ -1,0 +1,16 @@
+{{ stop.desc }}
+<ul>
+<br />
+
+<p><i>Linhas:</i>
+{% for trip in trips %}
+    {% ifchanged trip.route %}
+        {% spaceless %}    
+            <a href="{{ trip.route.get_absolute_url }}">
+            {{ trip.route.id }}</a>;
+        {% endspaceless %}
+    {% endifchanged %}        
+{% endfor %}
+</p>
+
+<br />

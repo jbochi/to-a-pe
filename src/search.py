@@ -1,20 +1,16 @@
 import re
 from sets import Set
-import unicodedata
-
-def remove_accents(text):
-    nkfd_form = unicodedata.normalize('NFKD', unicode(text))
-    return u"".join([c for c in nkfd_form if not unicodedata.combining(c)])
+from util import remove_accents
 
 def get_words(text):
     splitter = re.compile(r'[\s|\-|\)|\(|/]+')
     return [s.lower() for s in splitter.split(remove_accents(text)) if s != '']
 
-def get_unique_words(text):
-    word_set = Set(get_words(text))
+def get_unique_words(text, min_lenght):
+    word_set = Set([word for word in get_words(text) if len(word) >= min_lenght])
     return word_set
 
-def get_starts(text):
+def get_starts(text, min_length=3):
     word_set = get_unique_words(text)
     starts = Set()
     for word in word_set:

@@ -2,7 +2,8 @@ from google.appengine.ext import db
 
 from geo.geomodel import GeoModel
 from glinedec import decode_line
-from util import slugify, format_timedelta_seconds
+from util import format_timedelta_seconds
+from django.template.defaultfilters import slugify
 
 #http://code.google.com/transit/spec/transit_feed_specification.html#agency_txt___Field_Definitions
 
@@ -64,6 +65,8 @@ class Route(db.Model):
     color = db.StringProperty()
     text_color = db.StringProperty()
 
+    def get_absolute_url(self):
+        return '/%s/%s' % (self.id, slugify(self.long_name))
 
 class Trip(db.Model):
     route = db.ReferenceProperty(Route, required=True)
@@ -85,7 +88,6 @@ class Trip(db.Model):
     def get_shape(self):
         return decode_line(self.encoded_polyline)
 
-
 class StopTime():
     PICKUP_DROPOFF_CHOICES = (0, # Regularly scheduled pickup/dropoff
                               1, # No pickup/dropoff available
@@ -100,7 +102,6 @@ class StopTime():
     pickup_type = db.IntegerProperty(required=True, default=0, choices=PICKUP_DROPOFF_CHOICES)
     drop_off_type = db.IntegerProperty(required=True, default=0, choices=PICKUP_DROPOFF_CHOICES)
     shape_dist_traveled = db.FloatProperty()
-
 
 class Trips(db.Model):
     "Old model for trips. To be deleted"

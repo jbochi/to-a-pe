@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Rota {{trip.route_id}} - {{ trip.route_long_name }} - www.toape.com.br</name>
+    <description>Mapa itinerário da linha {{trip.route_id}} ({{trip.route_long_name}}), 
+		com sentido {{ trip.trip_headsign }}</description>
+    <atom:author>
+      <atom:name>Tô a Pé</atom:name>    
+    </atom:author>    
+    <atom:link href="http://www.toape.com.br{{ trip.get_absolute_url }}" />  		
+    <Style id="yellowLineGreenPoly">
+      <LineStyle>
+        <color>7f00ffff</color>
+        <width>4</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>7f00ff00</color>
+      </PolyStyle>
+    </Style>
+    <Placemark>
+      <name>{{ trip.route_long_name }}</name>
+      <styleUrl>#yellowLineGreenPoly</styleUrl>
+      <LineString>
+        <extrude>1</extrude>
+        <tessellate>1</tessellate>
+        <altitudeMode>absolute</altitudeMode>
+        <coordinates>
+		{% for point in trip.route %}
+			{{ point.1 }}, {{ point.0 }}
+		{% endfor %}        
+        </coordinates>
+      </LineString>
+    </Placemark>
+  </Document>
+</kml>

@@ -3,10 +3,10 @@
 {% block content %}
 		<h1>Lista de Itinerários de Ônibus</h1>
 		<ul>
-			{% for route in routes %}
+			{% for trip in trips %}
 				<li>
-					<a href="{{route.get_absolute_url}}">
-						{{ route.short_name }} - {{ route.long_name }}
+					<a href="{{trip.get_absolute_url}}">
+						{{trip.route_id}} - {{trip.route_long_name}} - Sentido: {{ trip.trip_headsign }}
 					</a>
 				</li>
 			{% endfor %}

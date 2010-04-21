@@ -1,29 +1,34 @@
-﻿// Create a base icon for all of our markers that specifies the
-// shadow, icon dimensions, etc.
-var baseStopIcon = new GIcon(G_DEFAULT_ICON);
-baseStopIcon.image = "http://labs.google.com/ridefinder/images/mm_20_blue.png"
-baseStopIcon.shadow = "http://labs.google.com/ridefinder/images/mm_20_shadow.png";
-baseStopIcon.iconSize = new GSize(12, 20);
-baseStopIcon.shadowSize = new GSize(22, 20);
-baseStopIcon.iconAnchor = new GPoint(6, 20);
+﻿var baseStopIcon = new GIcon(G_DEFAULT_ICON);
+baseStopIcon.image = "/images/bus_stop.png"; //http://code.google.com/p/google-maps-icons/wiki/TransportationIcons
+baseStopIcon.shadow = "/images/shadow.png";
+baseStopIcon.iconSize = new GSize(20, 20);
+baseStopIcon.shadowSize = new GSize(20, 20);
+baseStopIcon.iconAnchor = new GPoint(16, 16);
 baseStopIcon.infoWindowAnchor = new GPoint(5, 1);
 
-// Creates a marker whose info window displays the letter corresponding
-// to the given index.
-function createStopMarker(index) {
-  // Create a lettered icon for this point using our icon class
+var activeMarker = null;
+
+function createStopMarker(stop) {
   var stopIcon = new GIcon(baseStopIcon);
-  //letteredIcon.image = "http://www.google.com/mapfiles/marker" + letter + ".png";
-
-  // Set up our GMarkerOptions object
-  markerOptions = { icon:stopIcon };
-
-  var point = new GLatLng(stops[index][2], stops[index][3]);
-
+  var markerOptions = { icon:stopIcon };
+  var point = new GLatLng(stop[1], stop[2]);
   var marker = new GMarker(point, markerOptions);
 
   GEvent.addListener(marker, "click", function() {
-	marker.openInfoWindowHtml('<b>' + stops[index][0] + '</b><br />' + stops[index][1]);
+	marker.openInfoWindowHtml('<b>' + stop[3] + '</b><br /><div id="infobox_details"><img src="/images/ajax-loader.gif" /></div>',
+			{ maxWidth: 200 });
+	$.get('/ajax/stop_details/' + stop[0] + '/', function(data) {
+		if (marker == activeMarker) {
+			iw = marker.openInfoWindowHtml('<b>' + stop[3] + '</b><br />' + data,
+					{ maxWidth: 200 });
+		}
+	});
+  });
+  GEvent.addListener(marker, "infowindowopen", function() {
+	  activeMarker = marker;
+  });  
+  GEvent.addListener(marker, "infowindowclose", function() {
+	  activeMarker = null;
   });
   return marker;
 }
@@ -56,12 +61,13 @@ function drawTrip(trip_id) {
 				var bounds = document.poly.getBounds();
 				document.map.setCenter(bounds.getCenter());
 				document.map.setZoom(document.map.getBoundsZoomLevel(bounds));
-				document.map.addOverlay(document.poly);				
+				document.map.addOverlay(document.poly);
 				
 				//stops
-				//for(var i=0; i < stops.length; i++) {
-				//	document.map.addOverlay(createStopMarker(i));
-				//}
+				var stops = jsonDATA.stops;
+				for(var i=0; i < stops.length; i++) {
+					document.map.addOverlay(createStopMarker(stops[i]));
+				}
 			},
 			error : function(xhr, textStatus, errorThrown ) {
 				if (textStatus == 'timeout') {
