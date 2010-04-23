@@ -21,6 +21,7 @@ function createStopMarker(stop) {
 		if (marker == activeMarker) {
 			iw = marker.openInfoWindowHtml('<b>' + stop[3] + '</b><br />' + data,
 					{ maxWidth: 200 });
+			screenshotPreview();
 		}
 	});
   });

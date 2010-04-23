@@ -6,8 +6,11 @@
 {% for trip in trips %}
     {% ifchanged trip.route %}
         {% spaceless %}    
-            <a href="{{ trip.route.get_absolute_url }}">
-            {{ trip.route.id }}</a>;
+            <a href="{{ trip.route.get_absolute_url }}"
+               class="screenshot"
+               rel="http://maps.google.com/maps/api/staticmap?size=300x300&sensor=false&path=weight:4|color:blue|enc:{{ trip.shape_encoded_polyline }}"
+               title="{{ trip.route.long_name }}"
+            >{{ trip.route.id }}</a>;
         {% endspaceless %}
     {% endifchanged %}        
 {% endfor %}
