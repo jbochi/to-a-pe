@@ -96,7 +96,7 @@ class RouteHandler(webapp.RequestHandler):
                     self.response.out.write(template.render(path, template_values))
         else:
             template_values = {'route': route,
-                               'trips': route.trip_set.fetch(10), }
+                               'trips': route.trip_set.fetch(1000), }
             path = os.path.join(os.path.dirname(__file__), 'templates/route.html')
             self.response.out.write(template.render(path, template_values))
 
@@ -127,7 +127,7 @@ class GetStopDetails(webapp.RequestHandler):
     def get(self, stop_id):
         stop_id = unicode(unquote(stop_id))
         stop = Stop.get_by_key_name(stop_id)
-        trips = Trip.all().filter('stops =', stop_id).fetch(10)
+        trips = Trip.all().filter('stops =', stop_id).fetch(1000)
         if stop:
             template_values = {'stop': stop, 'trips': trips}
             path = os.path.join(os.path.dirname(__file__), 'templates/stop_details.html')
