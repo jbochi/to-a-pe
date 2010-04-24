@@ -49,9 +49,15 @@ function drawTrip(trip_id) {
 			tryCount : 0,
 			retryLimit : 3,
 			success: function(jsonDATA) {
+				if (jsonDATA.color) {
+				    color = jsonDATA.color;
+				} else {
+					color = "#0000FF" 
+				}
+				
 				//poly
 				document.poly = GPolyline.fromEncoded({
-					color: "#0000FF",
+					color: color,
 					weight: 7,
 					points: jsonDATA.points,
 					levels: jsonDATA.levels,

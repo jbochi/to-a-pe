@@ -137,6 +137,7 @@ class GetPoly(webapp.RequestHandler):
         if trip:
             data = {'points': trip.shape_encoded_polyline,
                     'levels': trip.shape_encoded_levels,
+                    'color': trip.route.color,
                     'stops': stop_locations}
             self.response.out.write(simplejson.dumps(data))
 
