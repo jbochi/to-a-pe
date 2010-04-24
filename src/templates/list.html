@@ -12,8 +12,11 @@
 			{% endfor %}
 		</ul>
 		<div class="buttons">
-			{% if next %}
-				<div class="next"><a href="/lista?bookmark={{next}}">Próximo</a></div>
+            {% if back_url %}
+                <div class="back"><a href="{{ back_url }}">Anterior</a></div>
+            {% endif %}
+			{% if next_url %}
+				<div class="next"><a href="{{ next_url }}">Próximo</a></div>
 			{% endif %}
 		</div>
 {% endblock %}
