@@ -3,7 +3,8 @@ from google.appengine.ext import db
 from geo.geomodel import GeoModel
 from glinedec import decode_line
 from util import format_timedelta_seconds
-from django.template.defaultfilters import slugify
+#from django.template.defaultfilters import slugify
+from util import slugify
 
 #http://code.google.com/transit/spec/transit_feed_specification.html#agency_txt___Field_Definitions
 
@@ -67,6 +68,10 @@ class Route(db.Model):
 
     def get_absolute_url(self):
         return '/%s/%s' % (self.id, slugify(self.long_name))
+
+    def preview_image_url(self):
+        return self.trip_set.get().preview_image_url()
+
 
 class Trip(db.Model):
     route = db.ReferenceProperty(Route, required=True)

@@ -5,7 +5,11 @@
 		<ul>
 			{% for route in routes %}
 				<li>
-					<a href="{{route.get_absolute_url}}">
+					<a href="{{ route.get_absolute_url }}"
+		               class="screenshot"
+		               rel="{{ route.preview_image_url }}"
+		               title="{{ route.long_name }}"
+		            >
 						{{ route.short_name }} - {{ route.long_name }}
 					</a>
 				</li>
