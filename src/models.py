@@ -95,7 +95,7 @@ class Trip(db.Model):
 
     def preview_image_url(self):
         url = 'http://maps.google.com/maps/api/staticmap?size=300x300&sensor=false&path=weight:4'
-        url += '|color:' + '0x%s' % self.route.color if self.route.color else 'blue'
+        url += '|color:' + ('0x%s' % self.route.color if self.route.color else 'blue')
         url += '|enc:' + self.shape_encoded_polyline
         return url
 
