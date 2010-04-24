@@ -88,6 +88,12 @@ class Trip(db.Model):
     def get_shape(self):
         return decode_line(self.encoded_polyline)
 
+    def preview_image_url(self):
+        url = 'http://maps.google.com/maps/api/staticmap?size=300x300&sensor=false&path=weight:4'
+        url += '|color:' + '0x%s' % self.route.color if self.route.color else 'blue'
+        url += '|enc:' + self.shape_encoded_polyline
+        return url
+
 class StopTime():
     PICKUP_DROPOFF_CHOICES = (0, # Regularly scheduled pickup/dropoff
                               1, # No pickup/dropoff available
