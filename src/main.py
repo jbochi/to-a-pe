@@ -20,9 +20,8 @@ class List(webapp.RequestHandler):
         if route_type:
             base_query = base_query.filter('type =', int(route_type))
         page = int(self.request.get('pagina', default_value=1))
-        n_pages = base_query.count()
+        n_pages = base_query.count() / PAGESIZE
         routes = base_query.fetch(PAGESIZE, offset=(page - 1) * PAGESIZE)
-
 
         if route_type:
             base_url = '/lista/%s/%s' % (route_type, route_type_description)
