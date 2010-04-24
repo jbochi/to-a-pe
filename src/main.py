@@ -15,27 +15,26 @@ from search import get_unique_words
 PAGESIZE = 20
 
 class List(webapp.RequestHandler):
-    def get(self):
+    def get(self, route_type=None, route_type_description=None):
         base_query = Route.all().order("id")
+        if route_type:
+            base_query = base_query.filter('type =', int(route_type))
         page = int(self.request.get('pagina', default_value=1))
         n_pages = base_query.count()
         routes = base_query.fetch(PAGESIZE, offset=(page - 1) * PAGESIZE)
+
+
+        if route_type:
+            base_url = '/lista/%s/%s' % (route_type, route_type_description)
+        else:
+            base_url = '/'
+
         template_values = {
             'routes': routes,
             'page': page,
-            'back_url': '/?pagina=%d' % (page - 1) if page > 1 else None,
-            'next_url': '/?pagina=%d' % (page + 1) if page < n_pages else None,
+            'back_url': '%s?pagina=%d' % (base_url, page - 1) if page > 1 else None,
+            'next_url': '%s?pagina=%d' % (base_url, page + 1) if page < n_pages else None,
             'n_pages': n_pages
-        }
-
-        path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
-        self.response.out.write(template.render(path, template_values))
-
-class ListByType(webapp.RequestHandler):
-    def get(self, route_type, description):
-        routes = Route.all().filter('type =', int(route_type)).order("id").fetch(PAGESIZE + 1)
-        template_values = {
-            'routes': routes,
         }
 
         path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
@@ -171,7 +170,7 @@ class KML(webapp.RequestHandler):
 def main():
     application = webapp.WSGIApplication([('/', List),
                                         ('/lista', List),
-                                        ('/lista/(\d+)/(.*)', ListByType),
+                                        ('/lista/(\d+)/(.*)', List),
                                         ('/busca', Search),
                                         ('/ajax/stop_details/(.*)/', GetStopDetails),
                                         ('/ajax/get_poly/(.*)', GetPoly),
