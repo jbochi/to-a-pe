@@ -27,4 +27,8 @@ class StopLoader(bulkloader.Loader):
     def generate_key(self, i, values):
         return values[0]
 
+    def handle_entity(self, entity):
+        entity.update_location()
+        return entity
+
 loaders = [StopLoader]
