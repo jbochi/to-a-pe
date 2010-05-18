@@ -1,7 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-		<h1>Lista de Itinerários de Ônibus</h1>
+		<h1>
+		  Lista de Itinerários
+		  {% ifequal route_type "onibus" %} 
+            de Ônibus
+          {% endifequal %}            
+          {% ifequal route_type "trem" %} 
+            de Trem
+		  {% endifequal %}
+          {% ifequal route_type "metro" %} 
+            de Metrô
+          {% endifequal %}		  
+		</h1>
 		<ul>
 			{% for route in routes %}
 				<li>

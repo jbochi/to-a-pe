@@ -19,6 +19,7 @@ class List(webapp.RequestHandler):
         base_query = Route.all().order("id")
         if route_type:
             base_query = base_query.filter('type =', int(route_type))
+
         page = int(self.request.get('pagina', default_value=1))
         n_pages = base_query.count() / PAGESIZE
         routes = base_query.fetch(PAGESIZE, offset=(page - 1) * PAGESIZE)
@@ -30,6 +31,7 @@ class List(webapp.RequestHandler):
 
         template_values = {
             'routes': routes,
+            'route_type': route_type_description,
             'page': page,
             'back_url': '%s?pagina=%d' % (base_url, page - 1) if page > 1 else None,
             'next_url': '%s?pagina=%d' % (base_url, page + 1) if page < n_pages else None,
