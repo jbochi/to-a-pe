@@ -19,7 +19,7 @@
 			     {% endfor %}
             </p>
 			<p><span class="label">Fonte: </span><a href="http://www.sptrans.com.br">SPTrans</a></p>
-			<p><a href="{{route.get_absolute_url}}.kml">Veja trajeto no Google Earth</a></p>
+			<p><a href="{{trips.0.get_absolute_url}}.kml">Veja trajeto no Google Earth</a></p>
 			
 			<script type="text/javascript"><!--
 			google_ad_client = "pub-3721608169956605";
@@ -29,11 +29,9 @@
 			google_ad_height = 200;
 			//-->
 			</script>
-            <!-- 
 			<script type="text/javascript"
 			src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 			</script>
-            -->
 		</div>		
 		
 		<div id="map_canvas"></div>

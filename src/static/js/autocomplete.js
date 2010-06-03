@@ -1,9 +1,16 @@
 $(document).ready(function(){
-	$("#trips").autocomplete("/ajax/autocomplete", {
-	  formatItem: function(item) {
-		return item[0];
-	  }
-	}).result(function(event, item) {
-	  location.href = item[1];
+	$.ajax({
+		  url: "/ajax/autocomplete",
+		  dataType: "json",
+		  success: 	function(jsonDATA) {
+			$("#trips").autocomplete(jsonDATA, {
+				matchContains: true,
+				formatItem: function(item) {
+					return item.text;
+				}
+			}).result(function(event, item) {
+				location.href = item.url;
+			});
+		  }
 	});
 });

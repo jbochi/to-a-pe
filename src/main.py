@@ -4,13 +4,12 @@ import wsgiref.handlers
 
 from google.appengine.ext.webapp import template
 from google.appengine.ext import webapp
-from google.appengine.ext import db
 
-from models import Route, Stop, Trip, Trips
+from models import Route, Stop, Trip, Trips, search_routes
 from util import slugify
 
 from django.utils import simplejson
-from search import get_unique_words
+from search import get_search_list
 
 PAGESIZE = 20
 
@@ -43,79 +42,45 @@ class List(webapp.RequestHandler):
 
 class Search(webapp.RequestHandler):
     def get(self, bookmark=None):
-        next = None
         search_string = self.request.get('q')
-        offset = self.request.get('offset')
-
-        if offset.isdigit():
-            offset = int(offset)
-            previous = max(offset - PAGESIZE, -1)
-        else:
-            previous = -1
-            offset = 0
-
-        words = get_unique_words(search_string)
-        where = 'AND'.join([" starts = '%s' " % word for word in words])
-
-        query = db.GqlQuery("SELECT * FROM Trips WHERE %s" % where)
-        trips = query.fetch(PAGESIZE + 1, offset)
-
-        if len(trips) == PAGESIZE + 1:
-            next = offset + PAGESIZE
-            trips = trips[:PAGESIZE]
+        routes = search_routes(search_string, limit=PAGESIZE)
 
         template_values = {
             'search': search_string.encode('utf-8'),
-            'trips': trips,
-            'next': next,
-            'previous': previous
+            'routes': routes,
         }
 
         path = os.path.join(os.path.dirname(__file__), 'templates/search_results.html')
         self.response.out.write(template.render(path, template_values))
 
-class Autocomplete(webapp.RequestHandler):
+
+class AutoCompleteData(webapp.RequestHandler):
     def get(self, bookmark=None):
-        search_string = self.request.get('q')
-        limit = int(self.request.get('limit'))
+        self.response.out.write(get_search_list())
 
-        words = get_unique_words(search_string)
-        query = Trips.all()
-        for word in words:
-            query = query.filter('starts =', word)
-        trips = query.fetch(limit=limit)
-
-        def format(trip):
-            return "%s - %s - Sentido: %s|/%s/%s" % (trip.route_id, trip.route_long_name, trip.trip_headsign,
-                                                     trip.trip_id, trip.route_long_name.replace('/', '-').replace(' ', '-'))
-
-        text = '\n'.join([format(trip) for trip in trips])
-        self.response.out.write(text)
 
 class RouteHandler(webapp.RequestHandler):
     def get(self, route_id=None, description=None):
         route = Route.get_by_key_name(unquote(route_id))
-        if not route: #redirect old links that were not slugfied (SEO)
-            trip_id = route_id
-            trip = Trips.all().filter("trip_id =", unquote(trip_id)).get()
-
-            if not trip:
-                self.error(404)
-                self.response.out.write('404 - Pagina nao encontrada')
-            else:
-                #redirect old links that were not slugfied (SEO)
-                if description != slugify(trip.route_long_name):
-                    self.redirect(trip.get_absolute_url(), permanent=True)
-                else:
-                    template_values = {'trip': trip,
-                                       'frequencies': trip.frequency_set, }
-                    path = os.path.join(os.path.dirname(__file__), 'old_templates/trip.html')
-                    self.response.out.write(template.render(path, template_values))
-        else:
+        if route:
             template_values = {'route': route,
                                'trips': route.trip_set.fetch(1000), }
             path = os.path.join(os.path.dirname(__file__), 'templates/route.html')
             self.response.out.write(template.render(path, template_values))
+        else: #old urls?
+            trip_id = route_id
+            trip = Trips.all().filter("trip_id =", unquote(trip_id)).get()
+
+            if trip:
+                #SEO: redirect
+                route = Route.get_by_key_name(trip.route_id)
+                if route:
+                    self.redirect(route.get_absolute_url(), permanent=True)
+                    return
+
+            self.error(404)
+            self.response.out.write('404 - Pagina nao encontrada')
+
 
 class GetPoly(webapp.RequestHandler):
     def get(self, trip_id):
@@ -141,6 +106,7 @@ class GetPoly(webapp.RequestHandler):
                     'stops': stop_locations}
             self.response.out.write(simplejson.dumps(data))
 
+
 class GetStopDetails(webapp.RequestHandler):
     def get(self, stop_id):
         stop_id = unicode(unquote(stop_id))
@@ -158,7 +124,7 @@ class GetStopDetails(webapp.RequestHandler):
 class KML(webapp.RequestHandler):
     def get(self, trip_id, file):
         trip_id = unquote(trip_id)
-        path = os.path.join(os.path.dirname(__file__), 'templates/trip.kml')
+        path = os.path.join(os.path.dirname(__file__), 'templates_old/trip.kml')
         trip = Trips.all().filter("trip_id =", trip_id).get()
         template_values = {
             'trip': trip,
@@ -175,7 +141,7 @@ def main():
                                         ('/busca', Search),
                                         ('/ajax/stop_details/(.*)/', GetStopDetails),
                                         ('/ajax/get_poly/(.*)', GetPoly),
-                                        ('/ajax/autocomplete', Autocomplete),
+                                        ('/ajax/autocomplete', AutoCompleteData),
                                         ('/(.*)/(.*).kml', KML),
                                         ('/(.*)/(.*)', RouteHandler), ],
                                        debug=True)

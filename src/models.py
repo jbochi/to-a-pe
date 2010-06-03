@@ -1,8 +1,9 @@
 from google.appengine.ext import db
 
+from aetycoon import DerivedProperty
 from geo.geomodel import GeoModel
 from glinedec import decode_line
-from util import format_timedelta_seconds
+from util import format_timedelta_seconds, get_words
 #from django.template.defaultfilters import slugify
 from util import slugify
 
@@ -72,6 +73,39 @@ class Route(db.Model):
     def preview_image_url(self):
         return self.trip_set.get().preview_image_url()
 
+    def search_text(self):
+        return "%s - %s" % (self.short_name, self.long_name)
+
+    @DerivedProperty
+    def searchable_words(self):
+        return get_words(self.search_text())
+
+def search_routes(search_string, offset=0, limit=10):
+    base_query = Route.all()
+    words = get_words(search_string)
+    if search_string.endswith(' '):
+        #search routes that have all entire words
+        for word in words:
+            base_query = base_query.filter('searchable_words =', word)
+    elif len(words) == 0:
+        return []
+    elif len(words) == 1:
+        #search by routes that have word starting with text
+        word = words[0]
+        base_query = base_query.filter('searchable_words >=', word)
+        base_query = base_query.filter('searchable_words <', word[:-1] + chr(ord(word[-1]) + 1))
+    else:
+        #search by routes that have all first words complete and a word starting with last word
+        for word in words[:-1]:
+            base_query = base_query.filter('searchable_words =', word)
+        last_word = words[-1]
+
+        #need to order in memory (exploding indexes)
+        routes = [route for route in base_query.fetch(1000) if
+                  any([word.startswith(last_word) for word in route.searchable_words])]
+        return routes[offset:limit]
+
+    return base_query.fetch(offset=offset, limit=limit)
 
 class Trip(db.Model):
     route = db.ReferenceProperty(Route, required=True)
@@ -88,7 +122,7 @@ class Trip(db.Model):
     stops = db.StringListProperty() #list of Stop key names
 
     def get_absolute_url(self):
-        return '/%s/%s' % (self.trip_id, slugify(self.route_long_name))
+        return '/%s/%s' % (self.id, slugify(self.route.long_name))
 
     def get_shape(self):
         return decode_line(self.encoded_polyline)

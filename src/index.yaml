@@ -12,5 +12,15 @@ indexes:
 
 - kind: Route
   properties:
+  - name: searchable_words
+  - name: searchable_words
+
+- kind: Route
+  properties:
   - name: type
   - name: id
+
+- kind: Trips
+  properties:
+  - name: starts
+  - name: starts

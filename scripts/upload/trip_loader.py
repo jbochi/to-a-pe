@@ -32,5 +32,5 @@ class TripLoader(bulkloader.Loader):
         return 'trip_%s' % values[2] #trip_id
 
 loaders = [TripLoader]
-stops = get_stops('C:/USERS/personal/offline_toape/transit/google_transit_20100417/stop_times.txt')
-polys = get_polys('C:/USERS/personal/offline_toape/transit/google_transit_20100417/shapes.txt')
+stops = get_stops('C:/USERS/personal/offline_toape/transit/stop_times.txt')
+polys = get_polys('C:/USERS/personal/offline_toape/transit/shapes.txt')
