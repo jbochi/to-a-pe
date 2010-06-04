@@ -199,3 +199,12 @@ class Frequency(db.Model):
     def interval(self):
         return "%s - %s" % (format_timedelta_seconds(self.start_time),
                             format_timedelta_seconds(self.end_time))
+
+
+#http://blog.notdot.net/2010/01/ReferenceProperty-prefetching-in-App-Engine
+def prefetch_refprop(entities, prop):
+    ref_keys = [prop.get_value_for_datastore(x) for x in entities]
+    ref_entities = dict((x.key(), x) for x in db.get(set(ref_keys)))
+    for entity, ref_key in zip(entities, ref_keys):
+        prop.__set__(entity, ref_entities[ref_key])
+    return entities

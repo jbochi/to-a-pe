@@ -6,10 +6,11 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
-from models import Route, Stop, Trip, Trips, search_routes
+from models import Route, Stop, Trip, Trips, search_routes, prefetch_refprop
 from search import get_search_list
 
 PAGESIZE = 20
+
 
 class List(webapp.RequestHandler):
     def get(self, route_type=None, route_type_description=None):
@@ -41,6 +42,7 @@ class List(webapp.RequestHandler):
 
         path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
         self.response.out.write(template.render(path, template_values))
+
 
 class Search(webapp.RequestHandler):
     def get(self, bookmark=None):
@@ -113,8 +115,9 @@ class GetStopDetails(webapp.RequestHandler):
     def get(self, stop_id):
         stop_id = unicode(unquote(stop_id))
         stop = Stop.get_by_key_name(stop_id)
-        trips = Trip.all().filter('stops =', stop_id).fetch(1000)
         if stop:
+            trips = Trip.all().filter('stops =', stop_id).fetch(1000)
+            prefetch_refprop(trips, Trip.route)
             template_values = {'stop': stop, 'trips': trips}
             path = os.path.join(os.path.dirname(__file__), 'templates/stop_details.html')
             self.response.out.write(template.render(path, template_values))
