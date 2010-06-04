@@ -49,6 +49,10 @@ class Search(webapp.RequestHandler):
         search_string = self.request.get('q')
         routes = search_routes(search_string, limit=PAGESIZE)
 
+        for route in routes:
+            if route.preview_image_url is None:
+                route.set_preview_image_url()
+
         template_values = {
             'search': search_string.encode('utf-8'),
             'routes': routes,
