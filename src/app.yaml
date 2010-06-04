@@ -4,6 +4,13 @@ runtime: python
 api_version: 1
 
 handlers:
+- url: /stats.*
+  script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py  
+
+- url: /remote_api
+  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
+  login: admin
+
 - url: /images
   static_dir: static/images
   
@@ -12,14 +19,10 @@ handlers:
 
 - url: /js
   static_dir: static/js
-  
+
 - url: /(.*\.(html|htm|txt|ico|xml))
   static_files: static/\1
   upload: static/(.*\.(html|htm|txt|ico|xml))
-  
-- url: /remote_api
-  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
-  login: admin
-  
+    
 - url: .*
   script: main.py

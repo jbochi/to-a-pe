@@ -1,14 +1,12 @@
 import os
 from urllib2 import unquote
-import wsgiref.handlers
-
-from google.appengine.ext.webapp import template
-from google.appengine.ext import webapp
-
-from models import Route, Stop, Trip, Trips, search_routes
-from util import slugify
 
 from django.utils import simplejson
+from google.appengine.ext import webapp
+from google.appengine.ext.webapp import template
+from google.appengine.ext.webapp.util import run_wsgi_app
+
+from models import Route, Stop, Trip, Trips, search_routes
 from search import get_search_list
 
 PAGESIZE = 20
@@ -134,19 +132,19 @@ class KML(webapp.RequestHandler):
         self.response.out.write(template.render(path, template_values))
 
 
-def main():
-    application = webapp.WSGIApplication([('/', List),
-                                        ('/lista', List),
-                                        ('/lista/(\d+)/(.*)', List),
-                                        ('/busca', Search),
-                                        ('/ajax/stop_details/(.*)/', GetStopDetails),
-                                        ('/ajax/get_poly/(.*)', GetPoly),
-                                        ('/ajax/autocomplete', AutoCompleteData),
-                                        ('/(.*)/(.*).kml', KML),
-                                        ('/(.*)/(.*)', RouteHandler), ],
-                                       debug=True)
-    wsgiref.handlers.CGIHandler().run(application)
+application = webapp.WSGIApplication([('/', List),
+                                    ('/lista', List),
+                                    ('/lista/(\d+)/(.*)', List),
+                                    ('/busca', Search),
+                                    ('/ajax/stop_details/(.*)/', GetStopDetails),
+                                    ('/ajax/get_poly/(.*)', GetPoly),
+                                    ('/ajax/autocomplete', AutoCompleteData),
+                                    ('/(.*)/(.*).kml', KML),
+                                    ('/(.*)/(.*)', RouteHandler), ],
+                                   debug=True)
 
+def main():
+    run_wsgi_app(application)
 
 if __name__ == '__main__':
     main()
