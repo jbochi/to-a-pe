@@ -18,8 +18,9 @@ class List(webapp.RequestHandler):
             base_query = base_query.filter('type =', int(route_type))
 
         page = int(self.request.get('pagina', default_value=1))
-        n_pages = base_query.count() / PAGESIZE
-        routes = base_query.fetch(PAGESIZE, offset=(page - 1) * PAGESIZE)
+        routes = base_query.fetch(PAGESIZE + 1, offset=(page - 1) * PAGESIZE)
+
+        has_next = len(routes) > PAGESIZE
 
         if route_type:
             base_url = '/lista/%s/%s' % (route_type, route_type_description)
@@ -31,8 +32,7 @@ class List(webapp.RequestHandler):
             'route_type': route_type_description,
             'page': page,
             'back_url': '%s?pagina=%d' % (base_url, page - 1) if page > 1 else None,
-            'next_url': '%s?pagina=%d' % (base_url, page + 1) if page < n_pages else None,
-            'n_pages': n_pages
+            'next_url': '%s?pagina=%d' % (base_url, page + 1) if has_next else None,
         }
 
         path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
