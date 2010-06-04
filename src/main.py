@@ -22,6 +22,10 @@ class List(webapp.RequestHandler):
 
         has_next = len(routes) > PAGESIZE
 
+        for route in routes:
+            if route.preview_image_url is None:
+                route.set_preview_image_url()
+
         if route_type:
             base_url = '/lista/%s/%s' % (route_type, route_type_description)
         else:

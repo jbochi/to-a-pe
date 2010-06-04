@@ -66,19 +66,26 @@ class Route(db.Model):
     url = db.LinkProperty()
     color = db.StringProperty()
     text_color = db.StringProperty()
-
-    def get_absolute_url(self):
-        return '/%s/%s' % (self.id, slugify(self.long_name))
-
-    def preview_image_url(self):
-        return self.trip_set.get().preview_image_url()
-
-    def search_text(self):
-        return "%s - %s" % (self.short_name, self.long_name)
+    preview_image_url = db.TextProperty()
 
     @DerivedProperty
     def searchable_words(self):
         return get_words(self.search_text())
+
+    def set_preview_image_url(self):
+        first_trip = self.trip_set.get()
+        if first_trip:
+            url = first_trip.preview_image_url()
+            self.preview_image_url = url
+            self.put()
+            return url
+
+    def get_absolute_url(self):
+        return '/%s/%s' % (self.id, slugify(self.long_name))
+
+    def search_text(self):
+        return "%s - %s" % (self.short_name, self.long_name)
+
 
 def search_routes(search_string, offset=0, limit=10):
     base_query = Route.all()
@@ -107,6 +114,7 @@ def search_routes(search_string, offset=0, limit=10):
 
     return base_query.fetch(offset=offset, limit=limit)
 
+
 class Trip(db.Model):
     route = db.ReferenceProperty(Route, required=True)
     service = db.ReferenceProperty(Service, required=True)
@@ -133,6 +141,7 @@ class Trip(db.Model):
         url += '|enc:' + self.shape_encoded_polyline
         return url
 
+
 class StopTime():
     PICKUP_DROPOFF_CHOICES = (0, # Regularly scheduled pickup/dropoff
                               1, # No pickup/dropoff available
@@ -147,6 +156,8 @@ class StopTime():
     pickup_type = db.IntegerProperty(required=True, default=0, choices=PICKUP_DROPOFF_CHOICES)
     drop_off_type = db.IntegerProperty(required=True, default=0, choices=PICKUP_DROPOFF_CHOICES)
     shape_dist_traveled = db.FloatProperty()
+
+
 
 class Trips(db.Model):
     "Old model for trips. To be deleted"
