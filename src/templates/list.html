@@ -1,5 +1,39 @@
 {% extends "base.html" %}
 
+{% block title %}
+    Itinerário das linhas 	
+	{% if route_type %}
+		{% ifequal route_type "onibus" %} 
+		    de ônibus
+		{% endifequal %}           
+		{% ifequal route_type "trem" %} 
+		    de trem
+		{% endifequal %}
+		{% ifequal route_type "metro" %} 
+		    de metrô
+		{% endifequal %}
+    {% else %}
+        de ônibus, trem e metrô
+    {% endif %} 	
+	de São Paulo - Tô a Pé
+{% endblock%}
+       
+{% ifnotequal route_type "" %}
+    {% block description %}
+        Lista das linhas 
+        {% ifequal route_type "onibus" %} 
+            de ônibus
+        {% endifequal %}           
+        {% ifequal route_type "trem" %} 
+            de trem
+        {% endifequal %}
+        {% ifequal route_type "metro" %} 
+            de metrô
+        {% endifequal %}
+        da cidade de São Paulo
+    {% endblock%}
+{% endifnotequal %}
+
 {% block content %}
 		<h1>
 		  Lista de Itinerários

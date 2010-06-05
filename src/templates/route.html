@@ -1,7 +1,28 @@
 {% extends "base.html" %}
 
-{% block title %}Linha de ônibus {{route.short_name}} - {{route.long_name}} - Tô a Pé{% endblock %}
-{% block description %}Quadro de horários de circulação e mapa do itinerário da linha de ônibus {{trip.route_id}} ({{trip.route_long_name}}), com sentido {{ trip.trip_headsign }}{% endblock %}
+{% block title %}Linha de  {% spaceless %} 
+{% ifequal route.type 1 %}
+    metrô
+{% endifequal %}
+{% ifequal route.type 2 %}
+    trem
+{% endifequal %}     
+{% ifequal route.type 3 %}
+    ônibus
+{% endifequal %}
+{% endspaceless %} {{route.short_name}} - {{route.long_name}} - Tô a Pé{% endblock %}
+
+{% block description %}Mapa do itinerário da linha de {% spaceless %} 
+{% ifequal route.type 1 %}
+    metrô
+{% endifequal %}
+{% ifequal route.type 2 %}
+    trem
+{% endifequal %}     
+{% ifequal route.type 3 %}
+    ônibus
+{% endifequal %}
+{% endspaceless %} {{route.short_name}} - {{route.long_name}}{% endblock %}
 
 {% block body_attributes %} onunload="GUnload()" {% endblock %}
 
