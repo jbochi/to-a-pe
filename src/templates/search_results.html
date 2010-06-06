@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block title %}
+Resultado busca por {{search|escape}} - Tô a Pé
+{% endblock %}
+
 {% block content %}
 		<h1>Resultado busca por <strong>{{search|escape}}</strong></h1>
 		<ul>

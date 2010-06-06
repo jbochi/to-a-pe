@@ -1,12 +1,5 @@
-﻿var baseStopIcon = new GIcon(G_DEFAULT_ICON);
-baseStopIcon.image = "/images/bus_stop.png"; //http://code.google.com/p/google-maps-icons/wiki/TransportationIcons
-baseStopIcon.shadow = "/images/shadow.png";
-baseStopIcon.iconSize = new GSize(20, 20);
-baseStopIcon.shadowSize = new GSize(20, 20);
-baseStopIcon.iconAnchor = new GPoint(16, 16);
-baseStopIcon.infoWindowAnchor = new GPoint(5, 1);
-
-var activeMarker = null;
+﻿var activeMarker = null;
+var baseStopIcon = null; 
 
 function createStopMarker(stop) {
   var stopIcon = new GIcon(baseStopIcon);
@@ -98,7 +91,16 @@ function drawTrip(trip_id) {
 };
 
 function createMap() {
-  if (!GBrowserIsCompatible()) {
+	baseStopIcon = new GIcon(G_DEFAULT_ICON);
+	baseStopIcon.image = "/images/bus_stop.png"; //http://code.google.com/p/google-maps-icons/wiki/TransportationIcons
+	baseStopIcon.shadow = "/images/shadow.png";
+	baseStopIcon.iconSize = new GSize(20, 20);
+	baseStopIcon.shadowSize = new GSize(20, 20);
+	baseStopIcon.iconAnchor = new GPoint(16, 16);
+	baseStopIcon.infoWindowAnchor = new GPoint(5, 1);
+
+
+	if (!GBrowserIsCompatible()) {
 	alert('Desculpe, seu navegador não é compatível com o Google Maps API.');
 	return;
   }
@@ -111,8 +113,78 @@ function createMap() {
 };
 					
 $(document).ready(function(){
-	createMap();
-	if (trip_id) {
-		drawTrip(trip_id);
+	if ($("#map_canvas").length == 1) {
+		createMap();
+		if (trip_id) {
+			drawTrip(trip_id);
+		}
 	}
+});
+
+
+//autocomplete
+$(document).ready(function(){
+	if ($("#trips").length == 1) {
+		$.ajax({
+			  url: "/ajax/autocomplete",
+			  dataType: "json",
+			  success: 	function(jsonDATA) {
+				$("#trips").autocomplete(jsonDATA, {
+					matchContains: true,
+					formatItem: function(item) {
+						return item.text;
+					}
+				}).result(function(event, item) {
+					location.href = item.url;
+				});
+			  }
+		});
+	}
+});
+
+//screenshot
+/*
+ * Url preview script 
+ * powered by jQuery (http://www.jquery.com)
+ * 
+ * written by Alen Grakalic (http://cssglobe.com)
+ * 
+ * for more info visit http://cssglobe.com/post/1695/easiest-tooltip-and-image-preview-using-jquery
+ *
+ */
+ 
+this.screenshotPreview = function(){	
+	/* CONFIG */
+		
+		xOffset = 10;
+		yOffset = 30;
+		
+		// these 2 variable determine popup's distance from the cursor
+		// you might want to adjust to get the right result
+		
+	/* END CONFIG */
+	$("a.screenshot").hover(function(e){
+		this.t = this.title;
+		this.title = "";	
+		var c = (this.t != "") ? "<br/>" + this.t : "";
+		$("body").append("<p id='screenshot'><img src='"+ this.rel +"' alt='url preview' />"+ c +"</p>");								 
+		$("#screenshot")
+			.css("top",(e.pageY - xOffset) + "px")
+			.css("left",(e.pageX + yOffset) + "px")
+			.fadeIn("fast");						
+    },
+	function(){
+		this.title = this.t;	
+		$("#screenshot").remove();
+    });	
+	$("a.screenshot").mousemove(function(e){
+		$("#screenshot")
+			.css("top",(e.pageY - xOffset) + "px")
+			.css("left",(e.pageX + yOffset) + "px");
+	});			
+};
+
+//starting the script on page load
+$(document).ready(function(){
+	screenshotPreview();
 });
