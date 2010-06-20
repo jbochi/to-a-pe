@@ -10,7 +10,7 @@ def appstats_normalize_path(path):
         return '/ajax/stop_details/<stop_id>/'
     elif path.startswith('/ajax/get_poly/'):
         return '/ajax/get_poly/<trip_id>/'
-    elif path.startswith('/lista') or path.startswith('/busca'):
+    elif path.startswith('/lista') or path.startswith('/busca') or path.startswith('/ajax'):
         return path
     elif re.match('/[^/]+/[^/]+\.kml', path):
         return '/<route_id>/<route_slug>.kml'
