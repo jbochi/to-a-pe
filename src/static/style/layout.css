@@ -16,7 +16,7 @@ body > #wrap {height: auto; min-height: 100%;}
 	text-align: left;
 	margin-left: auto;
 	margin-right: auto;
-	width: 730px;
+	width: 1000px;
 }
 
 #main {
@@ -219,8 +219,8 @@ h1 strong {
 }
 
 #map_canvas {
-  width: 450px;
-  height: 400px;
+  width: 700px;
+  height: 500px;
   border: 1px solid gray;
   float: left;
 }
