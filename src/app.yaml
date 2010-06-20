@@ -19,6 +19,9 @@ handlers:
 
 - url: /js
   static_dir: static/js
+  
+- url: /sitemap.txt
+  script: main.py
 
 - url: /(.*\.(html|htm|txt|ico|xml))
   static_files: static/\1

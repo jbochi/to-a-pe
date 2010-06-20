@@ -143,7 +143,25 @@ class KML(webapp.RequestHandler):
         self.response.out.write(template.render(path, template_values))
 
 
+class Sitemap(webapp.RequestHandler):
+    def get(self):
+        from google.appengine.api import memcache
+        from util import slugify
+
+        def absolute_url(route):
+            return 'http://www.toape.com.br/%s/%s' % (route.id, slugify(route.long_name))
+
+        routes = Route.all().fetch(2000)
+        urls = ['http://www.toape.com.br']
+        urls += [absolute_url(route) for route in routes]
+
+
+        self.response.headers['Content-Type'] = "text/plain"
+        self.response.out.write('\n'.join(urls))
+
+
 application = webapp.WSGIApplication([('/', List),
+                                    ('/sitemap.txt', Sitemap),
                                     ('/lista', List),
                                     ('/lista/(\d+)/(.*)', List),
                                     ('/busca', Search),
