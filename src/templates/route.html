@@ -36,7 +36,13 @@
 			
 			<p><span class="label">Sentido: </span>
 			     {% for trip in trips %}
-			         {{ trip.headsign }}
+			         {% ifequal trip.id trip_id %}
+			             <b>
+			         {% endifequal %}
+			         <a href="?trip={{ trip.id }}">{{ trip.headsign }}</a>
+                     {% ifequal trip.id trip_id %}
+                         </b>
+                     {% endifequal %}			         
 			     {% endfor %}
             </p>
 			<p><span class="label">Fonte: </span><a href="http://www.sptrans.com.br">SPTrans</a></p>
@@ -88,6 +94,10 @@
 
 {% block end_scripts %}
 	<script type="text/javascript">
-		var trip_id = '{{trips.0.id}}';
+	   {% if trip_id %}
+	    var trip_id = '{{ trip_id }}';
+	   {% else %}
+		var trip_id = '{{trips.0.id }}';
+	   {% endif %}
 	</script>
 {% endblock %}

@@ -69,10 +69,13 @@ class AutoCompleteData(webapp.RequestHandler):
 
 class RouteHandler(webapp.RequestHandler):
     def get(self, route_id=None, description=None):
-        route = Route.get_by_key_name(unquote(route_id))
+        route = Route.get_by_key_name(unquote(route_id)) 
         if route:
+            trips = route.trip_set.fetch(1000)
+            trip_id = self.request.get('trip') or trips[0].id
             template_values = {'route': route,
-                               'trips': route.trip_set.fetch(1000), }
+                               'trip_id': trip_id,
+                               'trips': trips }
             path = os.path.join(os.path.dirname(__file__), 'templates/route.html')
             self.response.out.write(template.render(path, template_values))
         else: #old urls?
