@@ -1,6 +1,6 @@
 import sys
-sys.path.append('C:/USERS/personal/to-a-pe/src')
-sys.path.append('C:/USERS/personal/to-a-pe/scripts/upload')
+sys.path.append('d:/juadasil/personal/to-a-pe/src')
+sys.path.append('d:/juadasil/personal/to-a-pe/scripts/upload')
 
 from google.appengine.ext import db
 from google.appengine.tools import bulkloader
@@ -32,5 +32,5 @@ class TripLoader(bulkloader.Loader):
         return 'trip_%s' % values[2] #trip_id
 
 loaders = [TripLoader]
-stops = get_stops('C:/USERS/personal/offline_toape/transit/stop_times.txt')
-polys = get_polys('C:/USERS/personal/offline_toape/transit/shapes.txt')
+stops = get_stops('d:/juadasil/personal/to-a-pe/scripts/upload/data/stop_times.txt')
+polys = get_polys('d:/juadasil/personal/to-a-pe/scripts/upload/data/shapes.txt')

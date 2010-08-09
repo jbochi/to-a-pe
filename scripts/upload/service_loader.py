@@ -1,6 +1,6 @@
 import sys
-sys.path.append('C:/USERS/personal/to-a-pe/src')
-sys.path.append('C:/USERS/personal/to-a-pe/scripts/upload')
+sys.path.append('d:/juadasil/personal/to-a-pe/src')
+sys.path.append('d:/juadasil/personal/to-a-pe/scripts/upload')
 
 from google.appengine.ext import db
 from google.appengine.tools import bulkloader
