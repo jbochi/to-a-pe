@@ -73,8 +73,14 @@ class RouteHandler(webapp.RequestHandler):
         if route:
             trips = route.trip_set.fetch(1000)
             trip_id = self.request.get('trip') or trips[0].id
+
+            for trip_loop in trips:
+                if trip_loop.id == trip_id:
+                    trip = trip_loop
+                    break
+
             template_values = {'route': route,
-                               'trip_id': trip_id,
+                               'trip': trip,
                                'trips': trips }
             path = os.path.join(os.path.dirname(__file__), 'templates/route.html')
             self.response.out.write(template.render(path, template_values))
