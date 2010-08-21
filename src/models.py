@@ -102,7 +102,10 @@ class Trip(db.Model):
     stops = db.StringListProperty() #list of Stop key names
 
     def get_absolute_url(self):
-        return '/%s/%s' % (self.id, slugify(self.route.long_name))
+        return self.route.get_absolute_url() + '?trip_id=' + self.id
+
+    def get_kml_url(self):
+        return '/%s/%s.kml' % (self.id, slugify(self.route.long_name))
 
     def get_shape(self):
         return decode_line(self.shape_encoded_polyline)
