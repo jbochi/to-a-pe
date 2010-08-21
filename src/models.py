@@ -87,34 +87,6 @@ class Route(db.Model):
         return "%s - %s" % (self.short_name, self.long_name)
 
 
-def search_routes(search_string, offset=0, limit=10):
-    base_query = Route.all()
-    words = get_words(search_string)
-    if search_string.endswith(' '):
-        #search routes that have all entire words
-        for word in words:
-            base_query = base_query.filter('searchable_words =', word)
-    elif len(words) == 0:
-        return []
-    elif len(words) == 1:
-        #search by routes that have word starting with text
-        word = words[0]
-        base_query = base_query.filter('searchable_words >=', word)
-        base_query = base_query.filter('searchable_words <', word[:-1] + chr(ord(word[-1]) + 1))
-    else:
-        #search by routes that have all first words complete and a word starting with last word
-        for word in words[:-1]:
-            base_query = base_query.filter('searchable_words =', word)
-        last_word = words[-1]
-
-        #need to order in memory (exploding indexes)
-        routes = [route for route in base_query.fetch(1000) if
-                  any([word.startswith(last_word) for word in route.searchable_words])]
-        return routes[offset:limit]
-
-    return base_query.fetch(offset=offset, limit=limit)
-
-
 class Trip(db.Model):
     route = db.ReferenceProperty(Route, required=True)
     service = db.ReferenceProperty(Service, required=True)
@@ -199,12 +171,3 @@ class Frequency(db.Model):
     def interval(self):
         return "%s - %s" % (format_timedelta_seconds(self.start_time),
                             format_timedelta_seconds(self.end_time))
-
-
-#http://blog.notdot.net/2010/01/ReferenceProperty-prefetching-in-App-Engine
-def prefetch_refprop(entities, prop):
-    ref_keys = [prop.get_value_for_datastore(x) for x in entities]
-    ref_entities = dict((x.key(), x) for x in db.get(set(ref_keys)))
-    for entity, ref_key in zip(entities, ref_keys):
-        prop.__set__(entity, ref_entities[ref_key])
-    return entities

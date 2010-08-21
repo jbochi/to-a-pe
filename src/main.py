@@ -6,8 +6,9 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
-from models import Route, Stop, Trip, Trips, search_routes, prefetch_refprop
-from search import get_search_list
+from models import Route, Stop, Trip, Trips
+from search import get_search_list, search_routes
+from util import prefetch_refprop
 
 PAGESIZE = 20
 
@@ -157,7 +158,6 @@ class KML(webapp.RequestHandler):
 
 class Sitemap(webapp.RequestHandler):
     def get(self):
-        from google.appengine.api import memcache
         from util import slugify
 
         def absolute_url(route):
@@ -167,10 +167,8 @@ class Sitemap(webapp.RequestHandler):
         urls = ['http://www.toape.com.br']
         urls += [absolute_url(route) for route in routes]
 
-
         self.response.headers['Content-Type'] = "text/plain"
         self.response.out.write('\n'.join(urls))
-
 
 application = webapp.WSGIApplication([('/', List),
                                     ('/sitemap.txt', Sitemap),
