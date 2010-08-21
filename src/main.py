@@ -69,7 +69,7 @@ class AutoCompleteData(webapp.RequestHandler):
 
 class RouteHandler(webapp.RequestHandler):
     def get(self, route_id=None, description=None):
-        route = Route.get_by_key_name(unquote(route_id)) 
+        route = Route.get_by_key_name(unquote(route_id))
         if route:
             trips = route.trip_set.fetch(1000)
             trip_id = self.request.get('trip') or trips[0].id
@@ -78,17 +78,18 @@ class RouteHandler(webapp.RequestHandler):
                                'trips': trips }
             path = os.path.join(os.path.dirname(__file__), 'templates/route.html')
             self.response.out.write(template.render(path, template_values))
-        else: #old urls?
+        else:
+            #Old urls used trip id. If this is the case, redirect
             trip_id = route_id
             trip = Trips.all().filter("trip_id =", unquote(trip_id)).get()
 
             if trip:
-                #SEO: redirect
                 route = Route.get_by_key_name(trip.route_id)
                 if route:
                     self.redirect(route.get_absolute_url(), permanent=True)
                     return
 
+            #Not found
             self.error(404)
             self.response.out.write('404 - Pagina nao encontrada')
 
