@@ -133,7 +133,7 @@ class Trip(db.Model):
         return '/%s/%s' % (self.id, slugify(self.route.long_name))
 
     def get_shape(self):
-        return decode_line(self.encoded_polyline)
+        return decode_line(self.shape_encoded_polyline)
 
     def preview_image_url(self):
         url = 'http://maps.google.com/maps/api/staticmap?size=300x300&sensor=false&path=weight:4'

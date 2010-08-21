@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
-    <name>Rota {{trip.route_id}} - {{ trip.route_long_name }} - www.toape.com.br</name>
-    <description>Mapa itinerário da linha {{trip.route_id}} ({{trip.route_long_name}}), 
-		com sentido {{ trip.trip_headsign }}</description>
+    <name>Rota {{trip.route.id}} - {{ trip.route.long_name }} - www.toape.com.br</name>
+    <description>Mapa itinerário da linha {{trip.route.id}} ({{trip.route.long_name}}), 
+		com sentido {{ trip.headsign }}</description>
     <atom:author>
       <atom:name>Tô a Pé</atom:name>    
     </atom:author>    
@@ -18,14 +18,14 @@
       </PolyStyle>
     </Style>
     <Placemark>
-      <name>{{ trip.route_long_name }}</name>
+      <name>{{ trip.route.long_name }}</name>
       <styleUrl>#yellowLineGreenPoly</styleUrl>
       <LineString>
         <extrude>1</extrude>
         <tessellate>1</tessellate>
         <altitudeMode>absolute</altitudeMode>
         <coordinates>
-		{% for point in trip.route %}
+		{% for point in trip.get_shape %}
 			{{ point.1 }}, {{ point.0 }}
 		{% endfor %}        
         </coordinates>

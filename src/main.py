@@ -137,21 +137,23 @@ class GetStopDetails(webapp.RequestHandler):
             self.response.out.write(template.render(path, template_values))
         else:
             self.error(404)
-            return self.response.out.write('Erro')
+            return self.response.out.write('Erro - Pagina nao encontrada')
 
 
 class KML(webapp.RequestHandler):
-    def get(self, trip_id, file):
+    def get(self, trip_id, trip_headsign):
         trip_id = unquote(trip_id)
-        path = os.path.join(os.path.dirname(__file__), 'templates_old/trip.kml')
-        trip = Trips.all().filter("trip_id =", trip_id).get()
-        template_values = {
-            'trip': trip,
-        }
-
-        self.response.headers['Content-Type'] = 'application/vnd.google-earth.kml+xml'
-        self.response.out.write(template.render(path, template_values))
-
+        trip = Trip.get_by_key_name('trip_' + trip_id)
+        if trip:
+            path = os.path.join(os.path.dirname(__file__), 'templates/trip.kml')
+            template_values = {
+                'trip': trip,
+            }
+            self.response.headers['Content-Type'] = 'application/vnd.google-earth.kml+xml'
+            self.response.out.write(template.render(path, template_values))
+        else:
+            self.error(404)
+            return self.response.out.write('Erro - Pagina nao encontrada')
 
 class Sitemap(webapp.RequestHandler):
     def get(self):
