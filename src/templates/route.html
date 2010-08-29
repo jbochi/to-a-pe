@@ -43,7 +43,14 @@
 			         {% endifequal %}			         
 			     {% endfor %}
             </p>            
-			<p><span class="label">Fonte: </span><a href="http://www.sptrans.com.br">SPTrans</a></p>
+			{% if similars %}
+			  <p>
+			    <span class="label">Similares: </span>
+			    {% for t in similars %}
+			      <a href="{{ t.get_absolute_url }}">{{ t.id }} - {{ t.headsign }}</a><br />
+			    {% endfor %}
+			  </p>
+			{% endif %}
 			<p><a href="{{trip.get_kml_url}}">Veja trajeto no Google Earth</a></p>			
 			<script type="text/javascript"><!--
 			google_ad_client = "pub-3721608169956605";

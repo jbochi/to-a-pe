@@ -100,6 +100,7 @@ class Trip(db.Model):
     shape_encoded_polyline = db.TextProperty()
     shape_encoded_levels = db.TextProperty()
     stops = db.StringListProperty() #list of Stop key names
+    similars = db.StringListProperty() #list of Trip key names
 
     def get_absolute_url(self):
         return self.route.get_absolute_url() + '?trip_id=' + self.id
